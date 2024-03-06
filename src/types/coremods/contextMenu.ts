@@ -123,4 +123,6 @@ export enum ContextMenuTypes {
   VideoDeviceContext = "video-device-context",
   WebauthnCredentialActions = "webauthn-credential-actions",
   WelcomeSettingsContext = "welcome-settings-context",
+  /** Right click embed link*/
+  AttachmentLink = "attachment-link-context",
 }
