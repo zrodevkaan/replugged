@@ -1,10 +1,11 @@
 import React from "@common/react";
-import { Logger } from "@replugged";
+import { Logger, util } from "@replugged";
 import type { User } from "discord-types/general";
 import { Injector } from "../../modules/injector";
 import { getByProps, waitForProps } from "../../modules/webpack";
 import { generalSettings } from "../settings/pages/General";
 import { APIBadges, BadgeSizes, Custom, badgeElements, getBadgeSizeClass } from "./badge";
+import { Tree } from "../../util";
 
 const injector = new Injector();
 
@@ -32,6 +33,11 @@ interface BadgeCache {
   lastFetch: number;
 }
 
+interface BadgeHighs {
+  props: { children: { props: { children: React.ReactElement[] } } };
+}
+type CombinedTree = Tree & { className: string };
+
 // todo: guilds
 const cache = new Map<string, BadgeCache>();
 const REFRESH_INTERVAL = 1000 * 60 * 30;
@@ -43,7 +49,7 @@ export async function start(): Promise<void> {
     "containerWithContent",
   )!;
 
-  injector.after(mod, "default", ([props], res) => {
+  injector.after(mod, "default", ([props], res: BadgeHighs) => {
     let {
       user: { id },
       shrinkAtCount,
@@ -93,8 +99,10 @@ export async function start(): Promise<void> {
       if (!badges) {
         return res;
       }
-      const children = res?.props.children;
-      if (!children || !Array.isArray(children)) {
+      const { children } = res.props.children.props;
+      // Unnecessary conditional, value is always falsy ?
+      // if (!children) return res;
+      if (!Array.isArray(children)) {
         logger.error("Error injecting badges: res.props.children is not an array", { children });
         return res;
       }
@@ -134,12 +142,16 @@ export async function start(): Promise<void> {
         }
       });
 
+      const badgesClassName = util.findInTree(res as unknown as Tree, (x) =>
+        Boolean(x?.className),
+      ) as CombinedTree;
+      if (!badgesClassName) return;
       if (children.length > 0) {
-        if (!res.props.className.includes(containerWithContent)) {
-          res.props.className += ` ${containerWithContent}`;
+        if (!badgesClassName.className.includes(containerWithContent)) {
+          badgesClassName.className += ` ${containerWithContent}`;
         }
-        if (!res.props.className.includes("replugged-badges-container")) {
-          res.props.className += " replugged-badges-container";
+        if (!badgesClassName.className.includes("replugged-badges-container")) {
+          badgesClassName.className += " replugged-badges-container";
         }
       }
 
