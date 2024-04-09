@@ -7,6 +7,7 @@ import { AnyFunction } from "../../../types";
 
 import { generalSettings } from "../settings/pages";
 import { disable } from "../../managers/plugins";
+import { Tree, findInTree } from "../../util";
 const injector = new Injector();
 
 // const URL_REGEX_FIND = /https:\/\/\S+/g;
@@ -72,7 +73,9 @@ function startMainRecovery(): void {
 
   log("Ended main recovery.");
 }
-
+interface TreeNode {
+  children: React.ReactElement[];
+}
 export async function start(): Promise<void> {
   const ErrorScreen = await waitForModule<AnyFunction>(
     filters.bySource(".AnalyticEvents.APP_CRASHED"),
@@ -86,17 +89,19 @@ export async function start(): Promise<void> {
         startMainRecovery();
         instance.setState({ error: null, info: null });
       }
-      const children = res.props?.action?.props?.children;
-      if (!children || !instance.state?.error) return;
+
+      const {
+        props: { children },
+      }: { props: TreeNode } = findInTree(res as unknown as Tree, (x) => Boolean(x?.action)) as {
+        props: TreeNode;
+      };
+      if (!instance.state?.error) return;
       const stackError = instance.state.error.stack;
       const pluginId = stackError.match(PLUGIN_ID_FIND_REGEX);
       if (pluginId) {
         void disable(pluginId[1]);
         toast.toast(`Plugin: ${pluginId[1]} was disabled!`, toast.Kind.SUCCESS);
       }
-      // const Link = instance.state.error.stack.match(URL_REGEX_FIND);
-      // this'll be used once I make a react decoder for errors. >:(
-      // never mind this idea is better.
 
       const invar = stackError.match(FIND_ERROR_NUMBER);
 
