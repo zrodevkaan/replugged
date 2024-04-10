@@ -2,11 +2,18 @@ import { dirname, join } from "path";
 
 import electron from "electron";
 import { CONFIG_PATHS } from "src/util.mjs";
-import type { RepluggedWebContents } from "../types";
+import {defaultSettings, GeneralSettings, RepluggedWebContents} from "../types";
 import { getSetting } from "./ipc/settings";
+import {init} from "../renderer/apis/settings";
+import * as fs from "fs";
 
 const electronPath = require.resolve("electron");
 const discordPath = join(dirname(require.main!.filename), "..", "app.orig.asar");
+const settingsPath = join(process.env.APPDATA || '', 'replugged', 'settings', 'dev.replugged.Settings.json');
+
+const settingsData = fs.readFileSync(settingsPath, 'utf8');
+const settings = JSON.parse(settingsData);
+
 // require.main!.filename = discordMain;
 
 Object.defineProperty(global, "appSettings", {
@@ -56,7 +63,10 @@ class BrowserWindow extends electron.BrowserWindow {
         opts.webPreferences.preload = join(__dirname, "./preload.js");
       }
     }
-
+    
+    opts.backgroundColor = '#00000000';
+    opts.transparent = settings.transparency
+    opts.frame = false;
     super(opts);
     (this.webContents as RepluggedWebContents).originalPreload = originalPreload;
   }

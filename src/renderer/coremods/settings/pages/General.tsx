@@ -103,6 +103,12 @@ export const General = (): React.ReactElement => {
       </SwitchItem>
 
       <SwitchItem
+        {...util.useSetting(generalSettings, "transparency")}
+        note={"Enables transparency on electron. (windows only I think)"}>
+        {"Enable Transparency"}
+      </SwitchItem>
+
+      <SwitchItem
         {...util.useSetting(generalSettings, "addonEmbeds")}
         note={Messages.REPLUGGED_SETTINGS_ADDON_EMBEDS_DESC}>
         {Messages.REPLUGGED_SETTINGS_ADDON_EMBEDS}
