@@ -103,7 +103,7 @@ export async function start(): Promise<void> {
         ?.action as {
         props: TreeNode;
       };
-      if (!instance.state?.error) return;
+      if (!instance.state.error) return;
       const stackError = instance.state.error.stack;
       const pluginId = stackError.match(PLUGIN_ID_FIND_REGEX);
       if (pluginId) {
@@ -142,8 +142,14 @@ export function stop(): void {
 }
 
 export async function startErrors(): Promise<void> {
-  ReactErrors =
-    (await fetch(ReactErrorList).then((response) => response.json())) ??
-    (await fetch(ReactErrorListFallback).then((response) => response.json())) ??
-    {};
+  ReactErrors = await fetch(ReactErrorList)
+    .then((response) => response.json())
+    .catch(async (error) => {
+      logger.error("ReactErrorList Fail:", error);
+      return await fetch(ReactErrorListFallback).then((response) => response.json());
+    })
+    .catch((error) => {
+      logger.error("ReactErrorListFallback Fail:", error, "\nFalling back to {}");
+      return {};
+    });
 }
