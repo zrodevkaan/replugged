@@ -344,7 +344,7 @@ async function buildPlugin({ watch, noInstall, production, noReload, addon }: Ar
           if (args.kind !== "import-statement") return undefined;
 
           return {
-            path: `replugged/plugins/preload[${manifest.id}]`,
+            path: `replugged/plugins/preload["${manifest.id}"]`,
             namespace: "replugged",
           };
         },
@@ -443,6 +443,7 @@ async function buildPlugin({ watch, noInstall, production, noReload, addon }: Ar
         overwrites({
           ...common,
           platform: "node",
+          format: "cjs",
           entryPoints: [path.join(folderPath, manifest.preload)],
           outfile: `${distPath}/preload.js`,
         }),
