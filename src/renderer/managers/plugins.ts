@@ -16,8 +16,11 @@ interface PluginWrapper extends RepluggedPlugin {
 /**
  * @hidden
  */
+export const preload = RepluggedNative.plugins.listPreload() as Record<
+  string,
+  Record<string, (...args: unknown[]) => unknown>
+>;
 export const plugins = new Map<string, PluginWrapper>();
-export const preload = RepluggedNative.plugins.listPreload();
 const running = new Set<string>();
 
 const styleElements = new Map<string, HTMLLinkElement>();
