@@ -22,13 +22,14 @@ let version = "";
 void ipcRenderer.invoke(RepluggedIpcChannels.GET_REPLUGGED_VERSION).then((v) => {
   version = v;
 });
-const pluginPreloads = {} as Record<string, Record<string, (...args: unknown[]) => unknown>>;
+
+const pluginPreloads = {} as Record<
+  string,
+  Record<string, (...args: unknown[]) => unknown> | unknown
+>;
 
 void ipcRenderer.invoke(RepluggedIpcChannels.LIST_PLUGINS_PRELOAD).then((preloadList) => {
-  for (const id in preloadList) {
-    // @ts-expect-error this is stupid
-    pluginPreloads[id] = require(preloadList[id]);
-  }
+  for (const id in preloadList) pluginPreloads[id] = require(preloadList[id]);
 });
 
 const RepluggedNative = {
