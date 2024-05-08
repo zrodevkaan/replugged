@@ -26,13 +26,8 @@ const pluginPreloads = {} as Record<string, Record<string, (...args: unknown[]) 
 
 void ipcRenderer.invoke(RepluggedIpcChannels.LIST_PLUGINS_PRELOAD).then((preloadList) => {
   for (const id in preloadList) {
-    const pluginPreload = require(preloadList[id]);
-    const methods = {} as Record<string, (...args: unknown[]) => unknown>;
-    for (const [methodName, method] of Object.entries(pluginPreload)) {
-      // @ts-expect-error this is stupid
-      methods[methodName] = (...args) => method(...args);
-    }
-    pluginPreloads[id] = methods;
+    // @ts-expect-error this is stupid
+    pluginPreloads[id] = require(preloadList[id]);
   }
 });
 
