@@ -339,7 +339,7 @@ async function buildPlugin({ watch, noInstall, production, noReload, addon }: Ar
       });
 
       build.onResolve(
-        { filter: new RegExp(`.*?${manifest.preload?.split("/")?.pop()?.replace(/\..+/, "")}`) },
+        { filter: new RegExp(`.*?/${manifest.preload?.split("/")?.pop()?.replace(/\..+/, "")}`) },
         (args) => {
           if (args.kind !== "import-statement") return undefined;
 
