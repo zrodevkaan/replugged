@@ -2,7 +2,7 @@
 import { Messages } from "@common/i18n";
 import { React, api, fluxDispatcher, modal, toast, users } from "@common";
 import {
-  Button,
+  Button, Clickable,
   Divider,
   ErrorBoundary,
   Flex,
@@ -634,6 +634,29 @@ export const Addons = (type: AddonType): React.ReactElement => {
                 type: label(type, { caps: "title", plural: true }),
               })}
             </Button>
+           <Tooltip text={'This is used for support and debugging'}>
+             <Button
+               color={Button.Colors.PRIMARY}
+               look={Button.Looks.LINK}
+               onClick={() => {
+                 // eslint-disable-next-line array-callback-return
+                 const DebugPluginInfo = Array.from(plugins.plugins.keys()).map(key => {
+                   const plugin = plugins.plugins.get(key);
+                   if (plugin)
+                   {
+                     const disabledKeys = plugins.getDisabled();
+                     const isDisabled = disabledKeys.includes(key);
+                     const {version} = plugin.manifest;
+                     const status = isDisabled ? '\x1b[31m[DISABLED]\x1b[0m' : '\x1b[32m[ENABLED]\x1b[0m';
+                     return `${'\x1b[36m'}${key}\x1b[0m (v${version}) ${status}`;
+                   }
+                 }).join('\n');
+                 DiscordNative.clipboard.copy(`\`\`\`ansi\n${DebugPluginInfo}\`\`\``);
+                 toast.toast('Copied Plugins!',toast.Kind.SUCCESS)
+               }}>
+               Copy Plugins
+             </Button>
+           </Tooltip>
           </div>
         )}
       </Flex>
