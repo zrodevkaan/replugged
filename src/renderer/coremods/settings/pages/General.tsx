@@ -105,14 +105,10 @@ export const General = (): React.ReactElement => {
 
       <SwitchItem
         value={quickCss}
-        onChange={() => {
-          if (quickCss) {
-            window.replugged.quickCSS.unload();
-            setQuickCss(false);
-          } else {
-            window.replugged.quickCSS.load();
-            setQuickCss(true);
-          }
+        onChange={(value) => {
+          if (value) window.replugged.quickCSS.load();
+          else window.replugged.quickCSS.unload();
+          setQuickCss(value);
         }}>
         Quick CSS
       </SwitchItem>
