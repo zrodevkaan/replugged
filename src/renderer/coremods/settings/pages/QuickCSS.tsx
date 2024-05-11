@@ -3,9 +3,11 @@ import { Messages } from "@common/i18n";
 import { EditorView, basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { css } from "@codemirror/lang-css";
+import { load, unload } from "../../../managers/quick-css";
+import { loadStyleSheet } from "../../../util";
 import { githubDark, githubLight } from "./codemirror-github";
 import { webpack } from "@replugged";
-import { Button, Divider, Flex, Text } from "@components";
+import { Button, Divider, Flex, SwitchItem, Text } from "@components";
 import "./QuickCSS.css";
 import { generalSettings } from "./General";
 
@@ -117,7 +119,7 @@ export const QuickCSS = (): React.ReactElement => {
   const [ready, setReady] = React.useState(false);
 
   const autoApply = generalSettings.get("autoApplyQuickCss");
-
+  
   const reload = (): void => window.replugged.quickCSS.reload();
   const reloadAndToast = (): void => {
     reload();
@@ -159,6 +161,7 @@ export const QuickCSS = (): React.ReactElement => {
   }, []);
 
   const [reloadTimer, setReloadTimer] = React.useState<NodeJS.Timeout | undefined>(undefined);
+  const [quickCss, setQuickCss] = React.useState(generalSettings.get('cssToggle'))
 
   React.useEffect(() => {
     if (!ready) return;
@@ -186,6 +189,20 @@ export const QuickCSS = (): React.ReactElement => {
         </div>
       </Flex>
       <Divider style={{ margin: "20px 0px" }} />
+      <SwitchItem
+        value={quickCss}
+        onChange={() => {
+          if (quickCss) {
+            unload();
+          } else {
+            load();
+          }
+          setQuickCss((prev) => {
+            generalSettings.set('cssToggle', !prev)
+            return !prev});
+        }}>
+        Quick CSS
+      </SwitchItem>
       <div ref={ref} id="replugged-quickcss-wrapper" />
     </>
   );

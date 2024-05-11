@@ -1,3 +1,4 @@
+import { generalSettings } from "../coremods/settings/pages";
 import { signalStart, waitForReady } from "../modules/webpack/patch-load";
 import { error, log } from "../modules/logger";
 
@@ -38,7 +39,10 @@ export async function start(): Promise<void> {
   started = true;
 
   // Quick CSS needs to be called after themes are loaded so that it will override the theme's CSS
-  quickCSS.load();
+  if (generalSettings.get("cssToggle", true))
+  {
+    quickCSS.load(); 
+  }
 
   // Want to make sure all addons are initialized before starting auto-update checking
   startAutoUpdateChecking();
