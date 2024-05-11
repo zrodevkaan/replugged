@@ -47,14 +47,9 @@ function restartModal(doRelaunch = false, onConfirm?: () => void, onCancel?: () 
 }
 
 export const General = (): React.ReactElement => {
-  const { value: expValue, onChange: expOnChange } = util.useSetting(
-    generalSettings,
-    "experiments",
-  );
-  const { value: rdtValue, onChange: rdtOnChange } = util.useSetting(
-    generalSettings,
-    "reactDevTools",
-  );
+  const [quickCss, setQuickCss] = util.useSettingArray(generalSettings, "quickCss");
+  const [expValue, expOnChange] = util.useSettingArray(generalSettings, "experiments");
+  const [rdtValue, rdtOnChange] = util.useSettingArray(generalSettings, "reactDevTools");
 
   const [kKeys, setKKeys] = React.useState<number[]>([]);
 
@@ -109,7 +104,22 @@ export const General = (): React.ReactElement => {
       </SwitchItem>
 
       <SwitchItem
+        value={quickCss}
+        onChange={() => {
+          if (quickCss) {
+            window.replugged.quickCSS.unload();
+            setQuickCss(false);
+          } else {
+            window.replugged.quickCSS.load();
+            setQuickCss(true);
+          }
+        }}>
+        Quick CSS
+      </SwitchItem>
+
+      <SwitchItem
         {...util.useSetting(generalSettings, "autoApplyQuickCss")}
+        disabled={!quickCss}
         note={Messages.REPLUGGED_SETTINGS_QUICKCSS_AUTO_APPLY_DESC}>
         {Messages.REPLUGGED_SETTINGS_QUICKCSS_AUTO_APPLY}
       </SwitchItem>

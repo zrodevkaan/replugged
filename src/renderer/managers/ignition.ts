@@ -39,9 +39,8 @@ export async function start(): Promise<void> {
   started = true;
 
   // Quick CSS needs to be called after themes are loaded so that it will override the theme's CSS
-  if (generalSettings.get("cssToggle", true))
-  {
-    quickCSS.load(); 
+  if (generalSettings.get("quickCss")) {
+    quickCSS.load();
   }
 
   // Want to make sure all addons are initialized before starting auto-update checking

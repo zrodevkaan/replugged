@@ -3,11 +3,9 @@ import { Messages } from "@common/i18n";
 import { EditorView, basicSetup } from "codemirror";
 import { EditorState } from "@codemirror/state";
 import { css } from "@codemirror/lang-css";
-import { load, unload } from "../../../managers/quick-css";
-import { loadStyleSheet } from "../../../util";
 import { githubDark, githubLight } from "./codemirror-github";
 import { webpack } from "@replugged";
-import { Button, Divider, Flex, SwitchItem, Text } from "@components";
+import { Button, Divider, Flex, Text } from "@components";
 import "./QuickCSS.css";
 import { generalSettings } from "./General";
 
@@ -117,9 +115,9 @@ export const QuickCSS = (): React.ReactElement => {
     container: ref.current,
   });
   const [ready, setReady] = React.useState(false);
+  const quickCssEnabled = generalSettings.get("quickCss");
+  const autoApply = quickCssEnabled && generalSettings.get("autoApplyQuickCss");
 
-  const autoApply = generalSettings.get("autoApplyQuickCss");
-  
   const reload = (): void => window.replugged.quickCSS.reload();
   const reloadAndToast = (): void => {
     reload();
@@ -161,7 +159,6 @@ export const QuickCSS = (): React.ReactElement => {
   }, []);
 
   const [reloadTimer, setReloadTimer] = React.useState<NodeJS.Timeout | undefined>(undefined);
-  const [quickCss, setQuickCss] = React.useState(generalSettings.get('cssToggle'))
 
   React.useEffect(() => {
     if (!ready) return;
@@ -177,7 +174,7 @@ export const QuickCSS = (): React.ReactElement => {
       <Flex justify={Flex.Justify.BETWEEN} align={Flex.Align.START}>
         <Text.H2>{Messages.REPLUGGED_QUICKCSS}</Text.H2>
         <div style={{ display: "flex" }}>
-          {autoApply ? null : (
+          {!quickCssEnabled || autoApply ? null : (
             <Button onClick={reloadAndToast}>{Messages.REPLUGGED_QUICKCSS_CHANGES_APPLY}</Button>
           )}
           <Button
@@ -189,20 +186,6 @@ export const QuickCSS = (): React.ReactElement => {
         </div>
       </Flex>
       <Divider style={{ margin: "20px 0px" }} />
-      <SwitchItem
-        value={quickCss}
-        onChange={() => {
-          if (quickCss) {
-            unload();
-          } else {
-            load();
-          }
-          setQuickCss((prev) => {
-            generalSettings.set('cssToggle', !prev)
-            return !prev});
-        }}>
-        Quick CSS
-      </SwitchItem>
       <div ref={ref} id="replugged-quickcss-wrapper" />
     </>
   );
