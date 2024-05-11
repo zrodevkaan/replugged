@@ -1,4 +1,3 @@
-import { generalSettings } from "../coremods/settings/pages";
 import { loadStyleSheet } from "../util";
 
 let el: HTMLLinkElement | undefined;
