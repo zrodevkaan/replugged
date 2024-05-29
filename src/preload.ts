@@ -23,6 +23,15 @@ void ipcRenderer.invoke(RepluggedIpcChannels.GET_REPLUGGED_VERSION).then((v) => 
   version = v;
 });
 
+const pluginPreloads = {} as Record<
+  string,
+  Record<string, (...args: unknown[]) => unknown> | unknown
+>;
+
+void ipcRenderer.invoke(RepluggedIpcChannels.LIST_PLUGINS_PRELOAD).then((preloadList) => {
+  for (const id in preloadList) pluginPreloads[id] = require(preloadList[id]);
+});
+
 const RepluggedNative = {
   themes: {
     list: async (): Promise<RepluggedTheme[]> =>
@@ -40,6 +49,7 @@ const RepluggedNative = {
     uninstall: async (pluginPath: string): Promise<RepluggedPlugin> =>
       ipcRenderer.invoke(RepluggedIpcChannels.UNINSTALL_PLUGIN, pluginPath),
     openFolder: () => ipcRenderer.send(RepluggedIpcChannels.OPEN_PLUGINS_FOLDER),
+    listPreload: () => pluginPreloads,
   },
 
   updater: {

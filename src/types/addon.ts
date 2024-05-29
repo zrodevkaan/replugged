@@ -62,6 +62,7 @@ export const plugin = common.extend({
   type: z.literal("replugged-plugin"),
   renderer: z.string().optional(),
   plaintextPatches: z.string().optional(),
+  preload: z.string().optional(),
   reloadRequired: z.boolean().optional(),
 });
 

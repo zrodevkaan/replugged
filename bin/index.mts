@@ -338,6 +338,18 @@ async function buildPlugin({ watch, noInstall, production, noReload, addon }: Ar
         };
       });
 
+      build.onResolve(
+        { filter: new RegExp(`.*?/${manifest.preload?.split("/")?.pop()?.replace(/\..+/, "")}`) },
+        (args) => {
+          if (args.kind !== "import-statement") return undefined;
+
+          return {
+            path: `replugged/plugins/preload["${manifest.id}"]`,
+            namespace: "replugged",
+          };
+        },
+      );
+
       build.onResolve({ filter: /^react$/ }, (args) => {
         if (args.kind !== "import-statement") return undefined;
 
@@ -424,6 +436,21 @@ async function buildPlugin({ watch, noInstall, production, noReload, addon }: Ar
     );
 
     manifest.plaintextPatches = "plaintextPatches.js";
+  }
+  if ("preload" in manifest) {
+    targets.push(
+      esbuild.context(
+        overwrites({
+          ...common,
+          platform: "node",
+          format: "cjs",
+          entryPoints: [path.join(folderPath, manifest.preload)],
+          outfile: `${distPath}/preload.js`,
+        }),
+      ),
+    );
+
+    manifest.preload = "preload.js";
   }
 
   if (!existsSync(distPath)) mkdirSync(distPath, { recursive: true });
